@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const Examen = {
-    // Lógica para el Buscador Inteligente (Módulo Público)
+    // Lógica para el Buscador Inteligente (Módulo Público) igual aca cambio
     buscar: async (filtros) => {
         const { id_carrera, semestre, materia } = filtros;
         
@@ -53,7 +53,42 @@ const Examen = {
         `;
         const [rows] = await db.query(query);
         return rows;
+    },
+
+    //Parte para el CRUD de los examenes
+
+    //Crear un nuevo examen
+    crear: async (datos) => {
+        const { id_materia, fecha, turno, id_salon, id_profesor } = datos;
+        const query = `
+            INSERT INTO examenes_ets 
+            (id_materia, fecha, turno, id_salon, id_profesor) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        const [result] = await db.query(query, [id_materia, fecha, turno, id_salon, id_profesor]);
+        return result.insertId; // Devuelve el ID del nuevo examen
+    },
+
+    // Editar un examen
+    actualizar: async (id_ets, datos) => {
+        const { id_materia, fecha, turno, id_salon, id_profesor } = datos;
+        const query = `
+            UPDATE examenes_ets 
+            SET id_materia = ?, fecha = ?, turno = ?, id_salon = ?, id_profesor = ?
+            WHERE id_ets = ?
+        `;
+        const [result] = await db.query(query, [id_materia, fecha, turno, id_salon, id_profesor, id_ets]);
+        return result.affectedRows; 
+    },
+
+    // Borrar un examen
+    eliminar: async (id_ets) => {
+        const query = 'DELETE FROM examenes_ets WHERE id_ets = ?';
+        const [result] = await db.query(query, [id_ets]);
+        return result.affectedRows;
     }
+
+
 };
 
 module.exports = Examen;
