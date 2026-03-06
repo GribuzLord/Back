@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 const Examen = {
-    // Lógica para el Buscador Inteligente (Módulo Público)
+    // Lógica para el Buscador Inteligente (Módulo Público) igual aca cambio
     buscar: async (filtros) => {
         const { id_carrera, semestre, materia } = filtros;
         
