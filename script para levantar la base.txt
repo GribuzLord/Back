@@ -1,0 +1,101 @@
+
+CREATE SCHEMA `gestion_ets_escom` DEFAULT CHARACTER SET utf8mb4;
+ use gestion_ets_escom;
+
+
+-- ============= CREACION DE TABLAS =============
+-- 1. Tabla de Carreras (Catálogo)
+CREATE TABLE carreras (
+    id_carrera INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_carrera VARCHAR(100) NOT NULL
+);
+
+-- 2. Tabla de Unidades de Aprendizaje (Materias)
+CREATE TABLE materias (
+    id_materia INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_materia VARCHAR(150) NOT NULL,
+    semestre INT NOT NULL,
+    id_carrera INT,
+    FOREIGN KEY (id_carrera) REFERENCES carreras(id_carrera) ON DELETE CASCADE
+);
+
+-- 3. Tabla de Edificios y Salones [cite: 15]
+CREATE TABLE salones (
+    id_salon INT AUTO_INCREMENT PRIMARY KEY,
+    edificio VARCHAR(50) NOT NULL,
+    numero_salon VARCHAR(20) NOT NULL
+);
+
+-- 4. Tabla de Profesores (Para el Módulo Público) [cite: 9]
+CREATE TABLE profesores (
+    id_profesor INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_completo VARCHAR(150) NOT NULL
+);
+
+-- 5. Tabla Principal de Exámenes ETS [cite: 4, 9]
+CREATE TABLE examenes_ets (
+    id_ets INT AUTO_INCREMENT PRIMARY KEY,
+    id_materia INT,
+    fecha DATE NOT NULL,
+    turno ENUM('Matutino', 'Vespertino') NOT NULL,
+    id_salon INT,
+    id_profesor INT,
+    FOREIGN KEY (id_materia) REFERENCES materias(id_materia),
+    FOREIGN KEY (id_salon) REFERENCES salones(id_salon),
+    FOREIGN KEY (id_profesor) REFERENCES profesores(id_profesor)
+);
+
+-- 6. Tabla de Usuarios (Módulo Administrativo) [cite: 11, 12]
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Aquí guardarás el hash de bcrypt
+    rol ENUM('admin', 'consultor') DEFAULT 'admin'
+);
+
+
+
+-- ============ LLENADO DE TABLAS ===============
+-- Insertar Carreras de ESCOM
+INSERT INTO carreras (nombre_carrera) VALUES 
+('Ingeniería en Sistemas Computacionales'),
+('Ingeniería en Inteligencia Artificial'),
+('Licenciatura en Ciencia de Datos');
+
+-- Insertar Materias (Unidades de Aprendizaje)
+INSERT INTO materias (nombre_materia, semestre, id_carrera) VALUES 
+('Desarrollo de Aplicaciones Móviles', 8, 1),
+('Sistemas Distribuidos', 7, 1),
+('Estructuras de Datos', 2, 1),
+('Machine learning', 5, 2),
+('Minería de Datos', 6, 3);
+
+-- Insertar Salones (Gestión de Catálogos) [cite: 14, 15]
+INSERT INTO salones (edificio, numero_salon) VALUES 
+('Edificio 1', '1101'),
+('Edificio 2', '2204'),
+('Laboratorio de Pesada', 'L-1');
+
+-- Insertar Profesores
+INSERT INTO profesores (nombre_completo) VALUES 
+('José Antonio Ortiz Ramírez'),
+('Carlos Pineda Guerrero'),
+('Jose Alfredo Jimenez Benitez'),
+('Jaqueline Arzate Gordillo');
+
+-- Insertar Exámenes ETS (Oferta de exámenes) [cite: 13]
+INSERT INTO examenes_ets (id_materia, fecha, turno, id_salon, id_profesor) VALUES 
+(1, '2026-06-15', 'Matutino', 1, 1),
+(2, '2026-06-16', 'Vespertino', 2, 2),
+(3, '2026-06-17', 'Matutino', 3, 3);
+
+-- Insertar Usuario Administrador (Módulo Administrativo) [cite: 11]
+-- Nota: En producción, el password_hash debe ser generado por bcrypt en Express.
+INSERT INTO usuarios (username, password_hash, rol) VALUES 
+('admin_escom', '$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6L6s5766wSgt6S..', 'admin');
+
+
+-- Constrasena para admin actualizada (para que la contrasena sea 123456)
+UPDATE usuarios 
+SET password_hash = '$2b$10$Uyb8x7Xl23Bnlg/TlTsAKe3k5HZCquENHSHmc8dmc46AqRKnI/kwK' 
+WHERE username = 'admin_escom';
